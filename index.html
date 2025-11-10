@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body class="bg-neutral-100 text-neutral-900">
+    <!-- App shell -->
+    <div class="min-h-dvh flex">
+      <!-- Sidebar -->
+      <aside
+        class="hidden md:flex w-72 shrink-0 border-r border-neutral-200 bg-white"
+      >
+        <nav class="w-full p-4">
+          <div class="flex items-center gap-2 px-2 py-3">
+            <div class="h-8 w-8 rounded">
+              <img src="./src/openweather.svg" />
+            </div>
+            <span class="font-semibold">CloseWeather</span>
+          </div>
+          <ul id="recent-list" class="mt-6 space-y-1"></ul>
+        </nav>
+      </aside>
+
+      <main class="flex-1">
+        <!-- Top bar -->
+        <header
+          class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-neutral-200"
+        >
+          <div class="relative mx-auto max-w-7xl px-4 py-3 flex items-center">
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <input
+                  id="search"
+                  class="w-[60vw] max-w-xl md:w-[520px] h-10 rounded-md border border-neutral-300 bg-white px-2 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="도시 또는 우편번호 검색"
+                />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2"
+                  ><img class="w-5 h-5" src="./src/search-left.svg"
+                /></span>
+              </div>
+            </div>
+            <div class="absolute right-2 flex items-center gap-4 text-2x1">
+              <button class="px-2 py-1 rounded hover:bg-neutral-100">KR</button>
+              <div class="flex items-center gap-4 mr-2">
+                <div id="unit-menu" class="relative">
+                  <button
+                    id="unit-trigger"
+                    class="px-2 py-1 rounded hover:bg-neutral-100"
+                  >
+                    단위
+                  </button>
+                  <div
+                    id="unit-popover"
+                    class="absolute right-0 mt-2 w-28 rounded-md border border-neutral-200 bg-white shadow hidden"
+                  >
+                    <button
+                      data-unit="metric"
+                      class="block w-full px-3 py-2 text-left hover:bg-neutral-100"
+                    >
+                      ℃
+                    </button>
+                    <button
+                      data-unit="imperial"
+                      class="block w-full px-3 py-2 text-left hover:bg-neutral-100"
+                    >
+                      ℉
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Content -->
+        <section
+          class="mx-auto max-w-7xl px-4 py-6 grid grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <!-- Current Weather Card -->
+          <div id="current-card" class="lg:col-span-2"></div>
+
+          <!-- Detail -->
+          <div
+            id="detail-card"
+            class="rounded-xl border border-neutral-200 bg-white p-5"
+          ></div>
+
+          <!-- 5 Days -->
+          <div
+            id="days-card"
+            class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-5"
+          ></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
