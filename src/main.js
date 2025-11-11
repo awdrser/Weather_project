@@ -1,4 +1,5 @@
 import "./style.css";
+import { mountAqiWidget } from "./widget.js";
 
 const API_KEY = import.meta.env.VITE_OWM_KEY;
 const $ = (sel) => document.querySelector(sel);
@@ -15,15 +16,44 @@ async function fetchGeo(query) {
   if (!list.length) throw new Error("도시를 찾을 수 없음");
 
   const { lat, lon, local_names } = list[0];
-  const place = local_names.ko;
+  const localPlace = local_names.ko;
+  const placeEnName = local_names.en;
 
-  return { lat, lon, place };
+  return { lat, lon, localPlace, placeEnName };
+}
+
+async function reverseGeo(lat, lon) {
+  const url = new URL("https://api.openweathermap.org/geo/1.0/reverse");
+  url.searchParams.set("lat", lat);
+  url.searchParams.set("lon", lon);
+  url.searchParams.set("limit", "1");
+  url.searchParams.set("appid", API_KEY);
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("리버스 지오코딩 실패");
+  const list = await res.json();
+  if (!list.length) return { localPlace: "", placeEnName: "" };
+
+  const g = list[0];
+  const localPlace =
+    (g.local_names && (g.local_names.ko || g.local_names.en)) ||
+    [g.name, g.state, g.country].filter(Boolean).join(", ");
+  const placeEnName = g.local_names?.en || g.name || "";
+
+  return { localPlace, placeEnName };
 }
 
 const state = {
   unit: "metric", // metric(℃, m/s), imperial(℉, mph)
   lang: "kr",
 };
+
+function normalizeIcon(icon) {
+  if (typeof icon !== "string") return "01d";
+  // "04d,[1@2x.png" 같은 이상값에서 "04d"만 뽑기
+  const m = icon.match(/^\d{2}[dn]/);
+  return m ? m[0] : "01d";
+}
 
 function formatSunTime(utcSeconds, cityOffsetSec) {
   // 1) 도시 현지 시각(UTC + cityOffset)을 얻은 뒤
@@ -38,15 +68,34 @@ function formatSunTime(utcSeconds, cityOffsetSec) {
   });
 }
 
+function renderUnitPopover() {
+  const pop = document.querySelector("#unit-popover");
+  if (!pop) return;
+  const btns = pop.querySelectorAll("[data-unit]");
+  btns.forEach((b) => {
+    const u = b.getAttribute("data-unit");
+    const active = u === state.unit;
+    b.classList.toggle("bg-neutral-900", active);
+    b.classList.toggle("text-white", active);
+    b.classList.toggle("bg-neutral-100", !active);
+    b.classList.toggle("text-neutral-900", !active);
+  });
+}
+
 function setupUnitMenu() {
   const trigger = document.querySelector("#unit-trigger");
   const pop = document.querySelector("#unit-popover");
-
   if (!trigger || !pop) return;
 
-  const open = () => pop.classList.remove("hidden");
+  const open = () => {
+    pop.classList.remove("hidden");
+    renderUnitPopover();
+  };
   const close = () => pop.classList.add("hidden");
-  const toggle = () => pop.classList.toggle("hidden");
+  const toggle = () => {
+    pop.classList.toggle("hidden");
+    if (!pop.classList.contains("hidden")) renderUnitPopover();
+  };
 
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -58,27 +107,36 @@ function setupUnitMenu() {
     if (!btn) return;
     const next = btn.getAttribute("data-unit");
     if (next !== state.unit) {
-      state.unit = next; // "metric" | "imperial"
-      // 현재 입력값이 있으면 그걸, 없으면 lastQuery로 재요청
+      state.unit = next; // 업데이트
+      renderUnitPopover(); // UI 즉시 반영
       const input = document.querySelector("#search");
       const q = input?.value?.trim() || state.lastQuery || "Seoul";
-      await searchAndRender(q);
+      await searchAndRender(q); // 데이터 재요청
+      trigger.innerHTML = `<button
+                    id="unit-trigger"
+                    class="px-2 py-1 rounded hover:bg-neutral-100"
+                  >
+                    ${state.unit === "metric" ? "℃" : "℉"}
+                  </button>`;
     }
     close();
   });
 
-  // 바깥 클릭 시 닫힘
+  // 바깥 클릭 닫기
   document.addEventListener("click", (e) => {
     if (!pop.contains(e.target) && e.target !== trigger) close();
   });
+
+  // 초기 표시
+  renderUnitPopover();
 }
 
-function templateCurrent(weather, place) {
+function templateCurrent(weather, localPlace) {
   const temp = Math.round(weather.main.temp);
   const desc = weather.weather[0]?.description ?? "";
   const icon = weather.weather[0]?.icon; // 예: 01d
 
-  return `<div class="rounded-xl overflow-hidden border border-neutral-200 bg-linear-to-br from-sky-500 to-blue-700 text-white"> <div class="h-44 p-5 flex justify-between"> <div class="relative  w-46"> <div class="text-sm/5 font-medium bg-white/15 px-2 py-1 rounded w-fit ">${place}</div> <div class="relative mt-3 flex items-start justify-start gap-1"> <div class="text-6xl font-bold">${temp}°</div> <img alt="" class="absolute -top-5 right-0 h-28 w-28" src="https://openweathermap.org/img/wn/${icon}@4x.png"/> </div> <div class="mt-3 text-white/90">${desc}</div> </div> <div class="text-white/80 text-sm">${new Date().toLocaleTimeString(
+  return `<div class="rounded-xl overflow-hidden border border-neutral-200 bg-linear-to-br from-sky-500 to-blue-700 text-white"> <div class="h-44 p-5 flex justify-between"> <div class="relative  w-46"> <div class="text-sm/5 font-medium bg-white/15 px-2 py-1 rounded w-fit ">${localPlace}</div> <div class="relative mt-3 flex items-start justify-start gap-1"> <div class="text-6xl font-bold">${temp}°</div> <img alt="" class="absolute -top-5 right-0 h-28 w-28" src="https://openweathermap.org/img/wn/${icon}@4x.png"/> </div> <div class="mt-3 text-white/90">${desc}</div> </div> <div class="text-white/80 text-sm">${new Date().toLocaleTimeString(
     [],
     { hour: "2-digit", minute: "2-digit" }
   )}</div>`;
@@ -194,10 +252,11 @@ async function fetch5Day(lat, lon) {
       if (h === 12) noonItem = it; // 정오 값 선호
     }
 
-    const icon =
-      noonItem?.weather[0]?.icon ??
-      Object.entries(iconCount).sort((a, b) => b - a);
-    [1];
+    let icon =
+      noonItem?.weather?.[0]?.icon ??
+      Object.entries(iconCount).sort((a, b) => b[1] - a[1])[0][0];
+
+    icon = normalizeIcon(icon);
 
     return {
       date: k,
@@ -220,7 +279,8 @@ function render5Day(days) {
         month: "numeric",
         day: "numeric",
       });
-      const iconUrl = `https://openweathermap.org/img/wn/${d.icon}@2x.png`;
+      const safeIcon = normalizeIcon(d.icon);
+      const iconUrl = `https://openweathermap.org/img/wn/${safeIcon}@2x.png`;
 
       return `
   <li class="rounded-lg border border-neutral-200 p-4 text-center">
@@ -238,7 +298,61 @@ function render5Day(days) {
   card.innerHTML = `<h2 class="font-semibold">5일 예보</h2> <ul class="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"> ${items} </ul>`;
 }
 
-async function fetchCurrentByCoord(lat, lon) {
+async function renderByCoord(lat, lon) {
+  const current = document.querySelector("#current-card");
+  const detail = document.querySelector("#detail-card");
+  const daysCard = document.querySelector("#days-card");
+  const aqiContainer = document.querySelector("#city-aqi-container");
+
+  if (!current) return;
+
+  try {
+    setLoading(current, true);
+    if (detail) setLoading(detail, true);
+    if (daysCard) setLoading(daysCard, true);
+    if (aqiContainer) setLoading(aqiContainer, true);
+
+    const rev = await reverseGeo(lat, lon);
+    const localPlace = rev.localPlace || "";
+    const placeEnName = rev.placeEnName || "";
+
+    const weather = await fetchCurrent(lat, lon);
+
+    current.innerHTML = templateCurrent(
+      weather,
+      localPlace || "알 수 없는 위치"
+    );
+    if (detail) detail.innerHTML = templateDetail(weather);
+    if (daysCard) {
+      const days = await fetch5Day(lat, lon);
+      render5Day(days);
+    }
+    if (aqiContainer) {
+      await mountAqiWidget({
+        city: placeEnName,
+        lang: "kr",
+        containerId: "city-aqi-container",
+      });
+    }
+
+    // 최근검색 및 상태 갱신(문자열 기준은 한글명으로, 영문명은 위젯 등에서 사용)
+    if (localPlace) {
+      saveRecent(localPlace);
+      renderRecentList();
+      state.lastQuery = localPlace;
+    }
+
+    // AQI 위젯을 쓰는 경우 placeEnName으로 마운트
+    // await mountAqiWidgetWithCity(placeEnName || localPlace);
+  } catch (e) {
+    const err = `<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">오류: ${e.message}</div>`;
+    current.innerHTML = err;
+    if (detail) detail.innerHTML = err;
+    if (daysCard) daysCard.innerHTML = err;
+  }
+}
+
+async function fetchCurrent(lat, lon) {
   const url = new URL("https://api.openweathermap.org/data/2.5/weather");
   url.searchParams.set("lat", lat);
   url.searchParams.set("lon", lon);
@@ -249,6 +363,7 @@ async function fetchCurrentByCoord(lat, lon) {
   if (!res.ok) throw new Error("현재 날씨 조회 실패");
   return res.json();
 }
+
 function saveRecent(query) {
   let recents = JSON.parse(localStorage.getItem("weather:recent") || "[]");
   recents = recents.filter((q) => q !== query);
@@ -281,35 +396,70 @@ window.__searchRecent = function (query) {
   searchAndRender(query);
 };
 
+function initWithGeo() {
+  if (!("geolocation" in navigator)) {
+    searchAndRender("서울"); // 지원 안 하면 폴백
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      renderByCoord(latitude, longitude); // 현재 위치 전용
+    },
+    (err) => {
+      console.warn("Geolocation error:", err);
+      searchAndRender("서울"); // 실패 시 폴백
+    },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+  );
+}
+
 async function searchAndRender(query) {
   const current = document.querySelector("#current-card");
   const detail = document.querySelector("#detail-card");
-  const days = document.querySelector("#days-card");
-  if (!current || !days) return;
+  const daysCard = document.querySelector("#days-card");
+  if (!current || !daysCard) return;
 
   try {
     setLoading(current, true);
-    setLoading(days, true);
-    const { lat, lon, place } = await fetchGeo(query);
-    const weather = await fetchCurrentByCoord(lat, lon);
+    if (detail) setLoading(detail, true);
+    setLoading(daysCard, true);
 
-    current.innerHTML = templateCurrent(weather, place);
-    if (detail) detail.innerHTML = templateDetail(weather);
-    if (days) {
-      const days = await fetch5Day(lat, lon);
-      render5Day(days);
+    const {
+      lat,
+      lon,
+      localPlace: geoPlace,
+      placeEnName,
+    } = await fetchGeo(query);
+    let localPlace = geoPlace || "";
+
+    const weather = await fetchCurrent(lat, lon);
+
+    if (!localPlace) {
+      try {
+        const rev = await reverseGeo(lat, lon);
+        localPlace = rev.localPlace || "";
+      } catch {}
     }
+
+    current.innerHTML = templateCurrent(weather, localPlace || query);
+    if (detail) detail.innerHTML = templateDetail(weather);
+    const days = await fetch5Day(lat, lon);
+    render5Day(days);
+    await mountAqiWidget({
+      city: placeEnName,
+      lang: "kr",
+      containerId: "city-aqi-container",
+    });
 
     saveRecent(query);
     renderRecentList();
     state.lastQuery = query;
   } catch (e) {
-    const err = `<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
-        오류: ${e.message}
-      </div>`;
+    const err = `<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">오류: ${e.message}</div>`;
     current.innerHTML = err;
     if (detail) detail.innerHTML = err;
-    if (days) days.innerHTML = err;
+    if (daysCard) daysCard.innerHTML = err;
   }
 }
 
@@ -328,6 +478,6 @@ function setupSearch() {
 document.addEventListener("DOMContentLoaded", () => {
   setupSearch();
   setupUnitMenu();
-  searchAndRender("서울");
+  initWithGeo();
   renderRecentList();
 });
