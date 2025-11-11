@@ -13,12 +13,13 @@ export async function fetchGeo(query) {
   const list = await res.json();
   if (!list.length) throw new Error("도시를 찾을 수 없음");
   const { lat, lon, local_names } = list[0];
+  const placeEnNameRaw = local_names.en;
   const placeEnName = normalizePlaceEn(placeEnNameRaw);
   return {
     lat,
     lon,
     localPlace: local_names?.ko,
-    placeEnName: local_names?.en,
+    placeEnName,
   };
 }
 

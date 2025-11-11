@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Weather</title>
+    <title>The Weather USW</title>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body class="bg-neutral-100 text-neutral-900">
@@ -18,7 +18,7 @@
             <div class="h-8 w-8 rounded">
               <img src="./src/svg/openweather.svg" />
             </div>
-            <span class="font-semibold">CloseWeather</span>
+            <span class="font-semibold">The Weather USW</span>
           </div>
           <ul id="recent-list" class="mt-6 space-y-1"></ul>
         </nav>
@@ -93,7 +93,13 @@
             class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-5 -mt-24"
           ></div>
 
-          <div class="rounded-xl border border-neutral-200 bg-white p-5">
+          <!-- AQI -->
+          <div
+            class="rounded-xl border border-neutral-200 bg-white p-5 relative"
+          >
+            <div class="flex items-center justify-between">
+              <h2 class="font-semibold">공기질 지수</h2>
+            </div>
             <span id="city-aqi-container"></span>
           </div>
         </section>

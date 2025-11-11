@@ -4,20 +4,18 @@ export function normalizeIcon(icon) {
   return m ? m[0] : "01d";
 }
 
+// src/utils/place.js
 export function normalizePlaceEn(nameRaw) {
   if (!nameRaw || typeof nameRaw !== "string") return "";
-
   let s = nameRaw.trim();
 
-  // 1) 괄호 및 괄호 안 내용 제거: "Yongsan-gu (Seoul)" -> "Yongsan-gu"
-  s = s.replace(/\s*[\(\[\{].*?[\)\]\}]\s*/g, " ").trim(); // 공백으로 치환 후 트림 [web:29][web:35][web:38]
+  // 괄호 제거
+  s = s.replace(/\s*[\(\[\{].*?[\)\]\}]\s*/g, " ").trim();
 
-  // 2) 쉼표나 하이픈 뒤 상세 제거: "Gangnam-gu - Seoul" / "Mapo-gu, Seoul" -> "Gangnam-gu" / "Mapo-gu"
-  s = s.split(/[,–—-]/)[0].trim(); // 다양한 대시 포함 [web:22][web:33][web:39]
+  // 쉼표/대시 뒤 제거
+  s = s.split(/[,–—-]/)[0].trim();
 
-  // 3) 한국 행정구역 영문 접미사 제거: "-si, -gun, -gu, -eup, -myeon, -dong, -ri"
-  //    확장: "Metropolitan City", "Special City", "City" 등도 제거
-  //    단어 경계 기준으로 끝에 있을 때만 제거
+  // 접미사 제거
   const adminSuffixes = [
     "metropolitan city",
     "special city",
@@ -31,21 +29,20 @@ export function normalizePlaceEn(nameRaw) {
     "dong",
     "ri",
   ];
-
   const suffixPattern = new RegExp(
-    // 공백 또는 하이픈으로 연결된 접미사가 끝에 연속 존재할 수 있어 반복 제거
     `(?:\\s*-(?:${adminSuffixes.join("|")})|\\s+(?:${adminSuffixes.join(
       "|"
     )}))+$`,
     "i"
   );
-  s = s.replace(suffixPattern, "").trim(); // [web:21][web:27][web:25][web:30]
+  const stripped = s.replace(suffixPattern, "").trim();
 
-  // 4) 다중 공백 정리
-  s = s.replace(/\s{2,}/g, " ").trim(); // [web:22][web:33]
+  // 최소 안전장치: 토큰이 1개뿐이고 길이가 3 미만이면 원본 유지
+  const tokens = stripped.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return nameRaw.trim();
+  if (tokens.length === 1 && tokens[0].length < 3) return nameRaw.trim();
 
-  // 5) 남는게 너무 짧으면 원본 fallback
-  return s.length >= 2 ? s : nameRaw.trim();
+  return stripped;
 }
 
 export function formatSunTime(utcSeconds, cityOffsetSec) {
