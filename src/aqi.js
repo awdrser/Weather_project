@@ -1,4 +1,12 @@
-// widget.js
+export async function mountCityAqi({
+  city,
+  containerId = "city-aqi-container",
+  lang = "kr",
+}) {
+  // AQICN 위젯은 container와 city 파라미터를 요구합니다.
+  await mountAqiWidget({ city, containerId, lang });
+}
+
 let aqiFeedReady;
 
 function loadAqiFeedOnce({ city = "seoul", lang = "kr" } = {}) {
