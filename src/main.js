@@ -21,6 +21,11 @@ function setupSearch() {
     if (input) input.value = query;
     searchAndRender(query);
   };
+
+  window.__searchGeo = () => {
+    if (input) input.value = null;
+    initWithGeo();
+  };
 }
 
 function initWithGeo() {

@@ -54,13 +54,13 @@ export async function searchAndRender(query) {
   const detail = document.querySelector("#detail-card");
   const daysCard = document.querySelector("#days-card");
   const aqiContainer = document.querySelector("#city-aqi-container");
-  if (!current || !daysCard) return;
+  if (!current || !daysCard || !daysCard || !aqiContainer) return;
 
   try {
     setLoading(current, true);
-    if (detail) setLoading(detail, true);
+    setLoading(detail, true);
     setLoading(daysCard, true);
-    if (aqiContainer) setLoading(aqiContainer, true);
+    setLoading(aqiContainer, true);
 
     const {
       lat,
@@ -86,11 +86,16 @@ export async function searchAndRender(query) {
     const days = computeDailyFromForecast(forecast);
     render5DayCard(daysCard, days);
 
-    await mountCityAqi({
-      city: placeEnName,
-      lang: "kr",
-      containerId: "city-aqi-container",
-    });
+    try {
+      await mountCityAqi({
+        city: placeEnName,
+        lang: "kr",
+        containerId: "city-aqi-container",
+      });
+    } catch (e) {
+      const err = `<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">${e.message}</div>`;
+      aqiContainer.innerHTML = err;
+    }
 
     saveRecent(query);
     renderRecentList(document.getElementById("recent-list"), loadRecents());
@@ -100,5 +105,6 @@ export async function searchAndRender(query) {
     current.innerHTML = err;
     if (detail) detail.innerHTML = err;
     if (daysCard) daysCard.innerHTML = err;
+    if (aqiContainer) aqiContainer.innerHTML = err;
   }
 }

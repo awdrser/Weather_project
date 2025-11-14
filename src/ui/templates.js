@@ -5,7 +5,7 @@ export function templateCurrent(weather, localPlace) {
   const temp = Math.round(weather.main.temp);
   const desc = weather.weather[0]?.description ?? "";
   const icon = weather.weather[0]?.icon;
-  return `<div class="rounded-xl overflow-hidden border border-neutral-200 bg-linear-to-br from-sky-500 to-blue-700 text-white">
+  return `<div class="rounded-xl overflow-hidden border border-neutral-200 bg-linear-to-br from-sky-500 to-blue-700 text-white min-w-64">
     <div class="h-44 p-5 flex justify-between">
       <div class="relative w-46">
         <div class="text-sm/5 font-medium bg-white/15 px-2 py-1 rounded w-fit ">${localPlace}</div>

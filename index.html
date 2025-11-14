@@ -11,7 +11,7 @@
     <div class="min-h-dvh flex">
       <!-- Sidebar -->
       <aside
-        class="hidden md:flex w-72 shrink-0 border-r border-neutral-200 bg-white"
+        class="hidden md:flex w-1/5 shrink-0 border-r border-neutral-200 bg-white"
       >
         <nav class="w-full p-4">
           <div class="flex items-center gap-2 px-2 py-3">
@@ -20,6 +20,15 @@
             </div>
             <span class="font-semibold">The Weather USW</span>
           </div>
+          <button
+            class="block w-full text-left px-3 py-2 rounded hover:bg-neutral-100"
+            onclick="window.__searchGeo()"
+          >
+            <span class="flex gap-5"
+              ><img class="w-5 h-5 translate-y-0.5" src="./src/svg/gps.svg" />
+              현재 위치</span
+            >
+          </button>
           <ul id="recent-list" class="mt-6 space-y-1"></ul>
         </nav>
       </aside>

@@ -76,19 +76,23 @@ export async function renderByCoord(lat, lon) {
       const days = computeDailyFromForecast(forecast);
       render5DayCard(daysCard, days);
     }
-
-    if (aqiContainer) {
-      await mountCityAqi({
-        city: placeEnName,
-        lang: "kr",
-        containerId: "city-aqi-container",
-      });
-    }
-
     if (localPlace) {
       saveRecent(localPlace);
       renderRecentList(document.getElementById("recent-list"), loadRecents());
       state.lastQuery = localPlace;
+    }
+
+    if (aqiContainer) {
+      try {
+        await mountCityAqi({
+          city: placeEnName,
+          lang: "kr",
+          containerId: "city-aqi-container",
+        });
+      } catch (e) {
+        const err = `<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">${e.message}</div>`;
+        aqiContainer.innerHTML = err;
+      }
     }
   } catch (e) {
     const err = `<div class="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">오류: ${e.message}</div>`;

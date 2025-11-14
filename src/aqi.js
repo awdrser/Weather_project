@@ -48,15 +48,17 @@ function loadAqiFeedOnce({ city = "seoul", lang = "kr" } = {}) {
 }
 
 export async function mountAqiWidget({
-  city,
+  city = "",
   lang = "kr",
   containerId = "city-aqi-container",
 }) {
+  city = city.replace(/\s+/g, "");
+  console.log(city);
   await loadAqiFeedOnce({ city, lang });
   const el = document.getElementById(containerId);
   if (!el) return;
   window._aqiFeed({
-    display: `<div class="flex justify-center items-center translate-y-3.5 text-3xl gap-3">%aqi <small>%impact</small></div>`,
+    display: `<div class="flex justify-center items-center translate-y-2 text-3xl gap-3">%aqi <small class="max-w-52">%impact</small></div>`,
     container: containerId,
     city: city,
     lang,
