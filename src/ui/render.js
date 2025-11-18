@@ -25,7 +25,7 @@ export function renderRecentList(ul, recents) {
         .map(
           (q) => `<li>
       <button class="block w-full text-left px-3 py-2 rounded hover:bg-neutral-100" onclick="window.__searchRecent('${q}')">
-        <span class="flex gap-5 "><img class="w-5 h-5 translate-y-0.5" src="./src/svg/search-right.svg"> ${q}</span>
+        <span class="flex gap-5 "><img class="w-5 h-5 translate-y-0.5" src="./src/svg/search-left.svg"> ${q}</span>
       </button>
     </li>`
         )
