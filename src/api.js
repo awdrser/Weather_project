@@ -65,3 +65,13 @@ export async function fetch5Day(lat, lon) {
   if (!res.ok) throw new Error("5일 예보 조회 실패");
   return res.json();
 }
+
+export async function fetchAqi(lat, lon) {
+  const url = new URL("https://api.openweathermap.org/data/2.5/air_pollution");
+  url.searchParams.set("lat", lat);
+  url.searchParams.set("lon", lon);
+  url.searchParams.set("appid", API_KEY);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("대기질 지수 조회 실패");
+  return res.json();
+}

@@ -11,23 +11,25 @@
     <div class="min-h-dvh flex">
       <!-- Sidebar -->
       <aside
-        class="min-w-1/6 md:flex w-1/6 max-w-1/6 shrink-0 border-r border-neutral-200 bg-white"
+        class="min-w-20 w-20 flex lg:w-60 shrink-0 border-r border-neutral-200 bg-white"
       >
-        <nav class="w-full p-4">
+        <nav class="w-full p-2">
           <div class="flex items-center gap-2 px-2 py-3 w-32">
-            <div class="hidden md:block h-8 w-8 rounded">
+            <div class="hidden lg:block h-8 w-8 rounded">
               <img src="/openweather.svg" />
             </div>
-            <span class="font-semibold text-sm w-14">The Weather USW</span>
+            <span class="font-bold text-sm w-14">The Weather USW</span>
           </div>
           <button
-            class="block w-full text-left px-3 py-2 rounded hover:bg-neutral-100"
+            class="lg:block w-full px-4 py-2 rounded hover:bg-neutral-100"
             onclick="window.__searchGeo()"
           >
-            <span class="flex gap-5"
-              ><img class="w-5 h-5 translate-y-0.5" src="/gps.svg" /> 현재
-              위치</span
+            <div
+              class="flex gap-5 flex-col justify-center items-center lg:flex-row lg:justify-start"
             >
+              <img class="w-5 h-5 translate-y-0.5" src="/gps.svg" />
+              <p class="w-10 lg:w-20 text-sm lg:text-[16px]">현재 위치</p>
+            </div>
           </button>
           <ul id="recent-list" class="mt-6 space-y-1"></ul>
         </nav>
@@ -38,19 +40,18 @@
         <header
           class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-neutral-200"
         >
-          <div class="relative mx-auto max-w-7xl px-4 py-3 flex items-center">
-            <div class="flex items-center gap-3">
-              <div class="relative">
-                <input
-                  id="search"
-                  class="w-[60vw] max-w-xl md:w-[520px] h-10 rounded-md border border-neutral-300 bg-white px-2 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="도시 또는 우편번호 검색"
-                />
-                <span class="absolute right-3 top-1/2 -translate-y-1/2"
-                  ><img class="w-5 h-5" src="/search-left.svg"
-                /></span>
-              </div>
+          <div
+            class="relative mx-auto max-w-7xl px-4 py-3 flex items-center justify-center"
+          >
+            <div class="flex items-center lg:-translate-x-[51px]">
+              <input
+                id="search"
+                class="w-[60vw] max-w-xl md:w-[520px] h-10 rounded-md border border-neutral-300 bg-white px-2 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="도시 또는 우편번호 검색"
+              />
+              <img class="w-5 h-5 -translate-x-8" src="/search-left.svg" />
             </div>
+
             <div class="absolute right-2 flex items-center gap-4 text-2x1">
               <div class="flex items-center gap-4 mr-2">
                 <div id="unit-menu" class="relative">
@@ -86,10 +87,10 @@
         <section
           class="mx-auto max-w-7xl px-4 py-4 grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-1.5"
         >
-          <!-- Current Weather Card -->
+          <!-- Current Weather Card (현재 날씨) -->
           <div id="current-card" class="lg:col-span-2 h-44"></div>
 
-          <!-- Detail (2행 1열) -->
+          <!-- Detail -->
           <div
             id="detail-card"
             class="rounded-xl border border-neutral-200 bg-white p-4 mb-1"
@@ -98,12 +99,12 @@
           <!-- 5 Days -->
           <div
             id="days-card"
-            class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-4 -mt-1"
+            class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-4 -mt-1 lg:max-h-60"
           ></div>
 
-          <!-- AQI -->
-          <div class="rounded-xl border border-neutral-200 bg-white p-5 h-32">
-            <span id="city-aqi-container"></span>
+          <!-- AQI (대기질 지수)-->
+          <div class="rounded-xl border border-neutral-200 bg-white p-5">
+            <div id="city-aqi-container" class="-mt-1 w-full h-full"></div>
           </div>
         </section>
       </main>

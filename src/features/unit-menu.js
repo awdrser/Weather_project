@@ -20,10 +20,6 @@ export function setupUnitMenu() {
   const pop = document.querySelector("#unit-popover");
   if (!trigger || !pop) return;
 
-  const open = () => {
-    pop.classList.remove("hidden");
-    renderUnitPopover();
-  };
   const close = () => pop.classList.add("hidden");
   const toggle = () => {
     pop.classList.toggle("hidden");

@@ -1,10 +1,11 @@
+// 정규화 및 시간 표시
+
 export function normalizeIcon(icon) {
   if (typeof icon !== "string") return "01d";
   const m = icon.match(/^\d{2}[dn]/);
   return m ? m[0] : "01d";
 }
 
-// src/utils/place.js
 export function normalizePlaceEn(nameRaw) {
   if (!nameRaw || typeof nameRaw !== "string") return "";
   let s = nameRaw.trim();
@@ -52,5 +53,44 @@ export function formatSunTime(utcSeconds, cityOffsetSec) {
     minute: "2-digit",
     hour12: true,
     timeZone: "UTC",
+  });
+}
+
+export function computeDailyFromForecast(data) {
+  const byDay = new Map();
+  for (const it of data.list) {
+    const key = new Date(it.dt * 1000).toISOString().slice(0, 10);
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(it);
+  }
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const keys = Array.from(byDay.keys()).sort();
+  const future = keys.filter((k) => k > todayKey).slice(0, 5);
+  return future.map((k) => {
+    const items = byDay.get(k);
+    let tmin = Infinity,
+      tmax = -Infinity;
+    const iconCount = {};
+    let noonItem = null;
+    for (const it of items) {
+      const t = it.main.temp;
+      if (t < tmin) tmin = t;
+      if (t > tmax) tmax = t;
+      const ic = it.weather[0]?.icon ?? "01d";
+      iconCount[ic] = (iconCount[ic] ?? 0) + 1;
+      const h = new Date(it.dt * 1000).getHours();
+      if (h === 12) noonItem = it;
+    }
+    let icon =
+      noonItem?.weather?.[0]?.icon ??
+      Object.entries(iconCount).sort((a, b) => b[1] - a[1])[0][0];
+    icon = normalizeIcon(icon);
+    return {
+      date: k,
+      min: Math.round(tmin),
+      max: Math.round(tmax),
+      icon,
+      desc: noonItem?.weather?.[0]?.description ?? "",
+    };
   });
 }

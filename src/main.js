@@ -5,11 +5,11 @@ import { loadRecents } from "./state.js";
 import "./style.css";
 import { renderRecentList } from "./ui/render.js";
 
+// 검색 셋업
 function setupSearch() {
-  const input =
-    document.querySelector("#search") ||
-    document.querySelector('input[placeholder*="도시"]');
+  const input = document.querySelector("#search");
   if (!input) return;
+  // 검색 이벤트 핸들러
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const q = input.value.trim();
@@ -22,12 +22,14 @@ function setupSearch() {
     searchAndRender(query);
   };
 
+  // 현재 위치 버튼 클릭 핸들러
   window.__searchGeo = () => {
     if (input) input.value = null;
     initWithGeo();
   };
 }
 
+// 현재 위치 기반 날씨 fetch - 기본값 : 서울
 function initWithGeo() {
   if (!("geolocation" in navigator)) {
     searchAndRender("서울");
@@ -46,6 +48,7 @@ function initWithGeo() {
   );
 }
 
+// 첫 화면 로딩 시 작동
 document.addEventListener("DOMContentLoaded", () => {
   setupSearch();
   setupUnitMenu();
