@@ -5,13 +5,13 @@ export function templateCurrent(weather, localPlace) {
   const temp = Math.round(weather.main.temp);
   const desc = weather.weather[0]?.description ?? "";
   const icon = weather.weather[0]?.icon;
-  return `<div class="rounded-xl overflow-hidden border border-neutral-200 bg-linear-to-br from-sky-500 to-blue-700 text-white min-w-64">
+  return `<div  class="rounded-xl overflow-hidden border border-neutral-200 bg-linear-to-br from-sky-500 to-blue-700 text-white min-w-32">
     <div class="h-44 p-5 flex justify-between">
       <div class="relative w-46">
-        <div class="text-sm/5 font-medium bg-white/15 px-2 py-1 rounded w-fit ">${localPlace}</div>
-        <div class="relative mt-3 flex items-start justify-start gap-1">
+        <div id="search-place" class="text-sm/5 font-medium bg-white/15 px-2 py-1 rounded w-fit ">${localPlace}</div>
+        <div class="relative mt-3 flex items-start justify-start gap-1 pb-0 mb-0 h-16">
           <div class="text-6xl font-bold">${temp}°</div>
-          <img alt="" class="absolute -top-5 right-0 h-28 w-28" src="https://openweathermap.org/img/wn/${icon}@4x.png"/>
+          <img alt="" class="-translate-y-6 h-28 w-28" src="https://openweathermap.org/img/wn/${icon}@4x.png"/>
         </div>
         <div class="mt-3 text-white/90">${desc}</div>
       </div>

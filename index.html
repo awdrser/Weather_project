@@ -6,19 +6,19 @@
     <title>The Weather USW</title>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
-  <body class="bg-neutral-100 text-neutral-900">
+  <body class="app-container bg-neutral-100 text-neutral-900">
     <!-- App shell -->
     <div class="min-h-dvh flex">
       <!-- Sidebar -->
       <aside
-        class="hidden md:flex w-1/5 shrink-0 border-r border-neutral-200 bg-white"
+        class="min-w-1/6 md:flex w-1/6 max-w-1/6 shrink-0 border-r border-neutral-200 bg-white"
       >
         <nav class="w-full p-4">
-          <div class="flex items-center gap-2 px-2 py-3">
-            <div class="h-8 w-8 rounded">
+          <div class="flex items-center gap-2 px-2 py-3 w-32">
+            <div class="hidden md:block h-8 w-8 rounded">
               <img src="/openweather.svg" />
             </div>
-            <span class="font-semibold">The Weather USW</span>
+            <span class="font-semibold text-sm w-14">The Weather USW</span>
           </div>
           <button
             class="block w-full text-left px-3 py-2 rounded hover:bg-neutral-100"
@@ -83,32 +83,26 @@
           </div>
         </header>
 
-        <!-- Content -->
         <section
-          class="mx-auto max-w-7xl px-4 py-6 grid grid-cols-2 lg:grid-cols-3 gap-6"
+          class="mx-auto max-w-7xl px-4 py-4 grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-1.5"
         >
           <!-- Current Weather Card -->
           <div id="current-card" class="lg:col-span-2 h-44"></div>
 
-          <!-- Detail -->
+          <!-- Detail (2행 1열) -->
           <div
             id="detail-card"
-            class="rounded-xl border border-neutral-200 bg-white p-5"
+            class="rounded-xl border border-neutral-200 bg-white p-4 mb-1"
           ></div>
 
           <!-- 5 Days -->
           <div
             id="days-card"
-            class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-5 -mt-24"
+            class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-4 -mt-1"
           ></div>
 
           <!-- AQI -->
-          <div
-            class="rounded-xl border border-neutral-200 bg-white p-5 relative"
-          >
-            <div class="flex items-center justify-between">
-              <h2 class="font-semibold">공기질 지수</h2>
-            </div>
+          <div class="rounded-xl border border-neutral-200 bg-white p-5 h-32">
             <span id="city-aqi-container"></span>
           </div>
         </section>

@@ -58,7 +58,9 @@ export async function mountAqiWidget({
   const el = document.getElementById(containerId);
   if (!el) return;
   window._aqiFeed({
-    display: `<div class="flex justify-center items-center translate-y-2 text-3xl gap-3">%aqi <small class="max-w-52">%impact</small></div>`,
+    display: `<div class="flex items-center justify-between">
+              <h2 class="font-semibold">공기질 지수</h2>
+            </div><div class="flex justify-center items-center translate-y-2 text-3xl gap-3">%aqi <small class="max-w-52">%impact</small></div>`,
     container: containerId,
     city: city,
     lang,
