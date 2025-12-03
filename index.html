@@ -52,7 +52,9 @@
               <img class="w-5 h-5 -translate-x-8" src="/search-left.svg" />
             </div>
 
-            <div class="absolute right-2 flex items-center gap-4 text-2x1">
+            <div
+              class="absolute right-0 lg:right-2 flex items-center gap-4 text-2x1"
+            >
               <div class="flex items-center gap-4 mr-2">
                 <div id="unit-menu" class="relative">
                   <button
@@ -93,24 +95,24 @@
           <!-- Detail -->
           <div
             id="detail-card"
-            class="rounded-xl border border-neutral-200 bg-white p-4 lg:row-span-1 max-h-64"
+            class="rounded-xl border border-neutral-200 bg-white p-4 lg:row-span-1 max-h-72"
           ></div>
           <!-- Hourly -->
           <div
             id="hourly-card"
-            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white p-4 overflow-x-auto"
+            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 overflow-x-auto lg:max-h-64"
           ></div>
 
           <!-- AQI (대기질 지수)-->
           <div
-            class="rounded-xl border border-neutral-200 bg-white p-5 lg:row-span-2 lg:max-h-72"
+            class="rounded-xl border border-neutral-200 bg-white p-5 lg:row-span-2 lg:max-h-[300px]"
           >
             <div id="city-aqi-container" class="-mt-1 w-full h-full"></div>
           </div>
           <!-- 5 Days -->
           <div
             id="days-card"
-            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 lg:max-h-56"
+            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 lg:max-h-60 flex flex-col gap-3"
           ></div>
         </section>
       </main>

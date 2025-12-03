@@ -1,9 +1,9 @@
 import {
-  template3HourSlots,
   template5Day,
   templateAqi,
   templateCurrent,
   templateDetail,
+  templateHourSlots,
   templateRecentList,
 } from "./templates.js";
 
@@ -25,9 +25,9 @@ export function render5DayCard(el, days) {
   el.innerHTML = template5Day(days);
 }
 
-export function render3HourSlots(el, slots, tzOffset = 0) {
+export function renderHourSlots(el, slots, tzOffset = 0) {
   if (!el) return;
-  el.innerHTML = template3HourSlots(slots, tzOffset);
+  el.innerHTML = templateHourSlots(slots, tzOffset);
 }
 
 export function renderRecentList(ul, recents) {

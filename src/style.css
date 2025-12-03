@@ -2,9 +2,9 @@
 
 @layer components {
   .tag {
-    @apply text-sm text-neutral-500;
+    @apply text-sm text-neutral-700;
   }
   .item {
-    @apply mt-1 text-xl font-semibold;
+    @apply mt-1 text-2xl;
   }
 }

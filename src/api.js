@@ -66,6 +66,20 @@ export async function fetch5Day(lat, lon) {
   return res.json();
 }
 
+export async function fetchHourly(lat, lon) {
+  const url = new URL(
+    "https://pro.openweathermap.org/data/2.5/forecast/hourly"
+  );
+  url.searchParams.set("lat", lat);
+  url.searchParams.set("lon", lon);
+  url.searchParams.set("appid", API_KEY);
+  url.searchParams.set("units", state.unit);
+  url.searchParams.set("lang", state.lang);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("시간별 예보 조회 실패");
+  return res.json();
+}
+
 export async function fetchAqi(lat, lon) {
   const url = new URL("https://api.openweathermap.org/data/2.5/air_pollution");
   url.searchParams.set("lat", lat);

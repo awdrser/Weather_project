@@ -3,15 +3,16 @@ import {
   fetchAqi,
   fetchCurrent,
   fetchGeo,
+  fetchHourly,
   reverseGeo,
 } from "../api.js";
 import { loadRecents, saveRecent, setLastQuery } from "../state.js";
 import {
-  render3HourSlots,
   render5DayCard,
   renderAqi,
   renderCurrent,
   renderDetail,
+  renderHourSlots,
   renderRecentList,
   setLoading,
 } from "../ui/render.js";
@@ -68,14 +69,15 @@ export async function searchAndRender(query) {
     // 데이터 가공
     const days = computeDailyFromForecast(forecast);
 
+    const hourly = await fetchHourly(lat, lon);
     // 5일 예보 렌더링 (일간 요약)
     render5DayCard(daysCard, days);
 
     // 3시간 간격 슬롯을 도시 타임존 기준으로 계산해 hourly-card에 렌더
     try {
       const tz = forecast.city?.timezone ?? 0;
-      const slots = computeSlotsFromForecast(forecast, 5, tz);
-      if (hourlyCard) render3HourSlots(hourlyCard, slots, tz);
+      const slots = computeSlotsFromForecast(hourly, 5, tz);
+      if (hourlyCard) renderHourSlots(hourlyCard, slots, tz);
     } catch (err) {
       if (hourlyCard)
         hourlyCard.innerHTML = `<div class="text-sm text-neutral-500">3시간 간격 예보를 불러올 수 없습니다.</div>`;

@@ -53,19 +53,13 @@ export function templateDetail(weather) {
   <li class="col-span-1 flex items-center gap-3">
     <div>
       <img alt="일출" src="https://cdn.jsdelivr.net/npm/lucide-static@0.453.0/icons/sunrise.svg" class="h-5 w-5"/>
-      <div class="mt-0.5 text-lg font-semibold">${formatSunTime(
-        sunRise,
-        tz
-      )}</div>
+      <div class="mt-0.5 text-2xl ">${formatSunTime(sunRise, tz)}</div>
     </div>
   </li>
   <li class="col-span-1 flex items-center gap-3">
     <div>
       <img alt="일몰" src="https://cdn.jsdelivr.net/npm/lucide-static@0.453.0/icons/sunset.svg" class="h-5 w-5"/>
-      <div class="mt-0.5 text-lg font-semibold">${formatSunTime(
-        sunSet,
-        tz
-      )}</div>
+      <div class="mt-0.5 text-2xl ">${formatSunTime(sunSet, tz)}</div>
     </div>
   </li>
 </ul>`;
@@ -86,7 +80,7 @@ export function template5Day(days) {
   <li class="rounded-lg border border-neutral-200 p-4 text-center">
     <div class="text-sm text-neutral-500">${dayLabel}</div>
     <img alt="${d.desc}" class="mx-auto my-2 h-12 w-12" src="${iconUrl}" />
-    <div class="mt-1 font-medium">
+    <div class="mt-1 font-bold">
       <span class="text-neutral-900">${d.max}°</span>
       <span class="text-neutral-400 ml-1">${d.min}°</span>
     </div>
@@ -112,9 +106,9 @@ export function templateRecentList(recents) {
   return items;
 }
 
-export function template3HourSlots(slots, tzOffset = 0) {
+export function templateHourSlots(slots, tzOffset = 0) {
   if (!Array.isArray(slots) || slots.length === 0)
-    return `<h2 class="font-semibold">3시간 간격 예보</h2><div class="mt-4 text-neutral-400">데이터가 없습니다.</div>`;
+    return `<h2 class="font-semibold">시간별 예고 예보</h2><div class="mt-4 text-neutral-400">데이터가 없습니다.</div>`;
 
   const items = slots
     .map((s) => {
@@ -132,13 +126,13 @@ export function template3HourSlots(slots, tzOffset = 0) {
       <li class="rounded-lg border border-neutral-200 p-3 text-center">
         <div class="text-sm text-neutral-500">${time}</div>
         <img alt="icon" class="mx-auto my-2 h-12 w-12" src="${iconUrl}" />
-        <div class="mt-1 font-medium">${temp}°</div>
-        <div class="text-sm text-neutral-500">강수 ${pop}% / ${rain}mm</div>
+        <div class="mt-1 font-bold">${temp}°</div>
+        <div class="flex gap-2 justify-center items-center text-sm text-neutral-500"><img alt="비" src="/droplet.svg" class="h-4 w-4"/> ${pop}% </div>
       </li>`;
     })
     .join("");
 
-  return `<h2 class="font-semibold">3시간 간격 예보</h2>
+  return `<h2 class="font-semibold">시간별 예보</h2>
   <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">${items}</ul>`;
 }
 
