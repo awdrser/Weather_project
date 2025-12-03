@@ -63,7 +63,7 @@
                   </button>
                   <div
                     id="unit-popover"
-                    class="absolute right-0 mt-2 w-28 rounded-md border border-neutral-200 bg-white shadow hidden"
+                    class="absolute right-0 mt-2 ml-2 w-28 rounded-md border border-neutral-200 bg-white shadow hidden"
                   >
                     <button
                       data-unit="metric"
@@ -85,27 +85,33 @@
         </header>
 
         <section
-          class="mx-auto max-w-7xl px-4 py-4 grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-1.5"
+          class="mx-auto max-w-7xl px-4 py-4 grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-3 gap-x-6 gap-y-3 lg:gap-y-3 lg:grid-"
         >
           <!-- Current Weather Card (현재 날씨) -->
-          <div id="current-card" class="lg:col-span-2 h-44"></div>
+          <div id="current-card" class="lg:col-span-2 lg:row-span-1 h-44"></div>
 
           <!-- Detail -->
           <div
             id="detail-card"
-            class="rounded-xl border border-neutral-200 bg-white p-4 mb-1"
+            class="rounded-xl border border-neutral-200 bg-white p-4 lg:row-span-1 max-h-64"
           ></div>
-
-          <!-- 5 Days -->
+          <!-- Hourly -->
           <div
-            id="days-card"
-            class="lg:col-span-2 rounded-xl border border-neutral-200 bg-white p-4 -mt-1 lg:max-h-60"
+            id="hourly-card"
+            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white p-4 overflow-x-auto"
           ></div>
 
           <!-- AQI (대기질 지수)-->
-          <div class="rounded-xl border border-neutral-200 bg-white p-5">
+          <div
+            class="rounded-xl border border-neutral-200 bg-white p-5 lg:row-span-2 lg:max-h-72"
+          >
             <div id="city-aqi-container" class="-mt-1 w-full h-full"></div>
           </div>
+          <!-- 5 Days -->
+          <div
+            id="days-card"
+            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 lg:max-h-56"
+          ></div>
         </section>
       </main>
     </div>

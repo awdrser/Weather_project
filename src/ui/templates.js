@@ -11,13 +11,13 @@ export function templateCurrent(weather, localPlace) {
     ? "bg-gradient-to-br from-gray-800 to-gray-700"
     : "bg-linear-to-br from-sky-500 to-blue-700";
 
-  return `<div class="rounded-xl overflow-hidden border border-neutral-200 ${darkModeClass} text-white min-w-32">
+  return `<div class="rounded-xl overflow-hidden border border-neutral-200 ${darkModeClass} text-white min-w-32 lg:-mb-64">
     <div class="h-44 p-5 flex justify-between">
       <div class="relative w-46">
         <div id="search-place" class="text-sm/5 font-medium bg-white/15 px-2 py-1 rounded w-fit">${localPlace}</div>
         <div class="relative mt-3 flex items-start justify-start gap-1 pb-0 mb-0 h-16">
           <div class="text-6xl font-bold">${temp}°</div>
-          <img alt="" class="-translate-y-6 h-28 w-28" src="https://openweathermap.org/img/wn/${icon}@4x.png"/>
+          <img alt="날씨 이미지" class="-translate-y-6 h-28 w-28" src="https://openweathermap.org/img/wn/${icon}@4x.png"/>
         </div>
         <div class="mt-3 text-white/90">${desc}</div>
       </div>
@@ -94,7 +94,7 @@ export function template5Day(days) {
     })
     .join("");
   return `<h2 class="font-semibold">5일 예보</h2>
-<ul class="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">${items}</ul>`;
+<ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 ">${items}</ul>`;
 }
 
 export function templateRecentList(recents) {
@@ -110,6 +110,36 @@ export function templateRecentList(recents) {
         .join("")
     : `<li class="text-neutral-400 px-3 py-2">최근 검색 없음</li>`;
   return items;
+}
+
+export function template3HourSlots(slots, tzOffset = 0) {
+  if (!Array.isArray(slots) || slots.length === 0)
+    return `<h2 class="font-semibold">3시간 간격 예보</h2><div class="mt-4 text-neutral-400">데이터가 없습니다.</div>`;
+
+  const items = slots
+    .map((s) => {
+      // dt_txt 형식: "YYYY-MM-DD HH:MM:SS" -> HH:MM만 추출
+      const time =
+        typeof s.dt_txt === "string" && s.dt_txt.length >= 16
+          ? s.dt_txt.slice(11, 16)
+          : formatSunTime(s.dt, tzOffset);
+      const icon = normalizeIcon(s.icon);
+      const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+      const temp = Math.round(s.temp);
+      const pop = Math.round((s.pop || 0) * 100);
+      const rain = typeof s.rain === "number" ? s.rain : 0;
+      return `
+      <li class="rounded-lg border border-neutral-200 p-3 text-center">
+        <div class="text-sm text-neutral-500">${time}</div>
+        <img alt="icon" class="mx-auto my-2 h-12 w-12" src="${iconUrl}" />
+        <div class="mt-1 font-medium">${temp}°</div>
+        <div class="text-sm text-neutral-500">강수 ${pop}% / ${rain}mm</div>
+      </li>`;
+    })
+    .join("");
+
+  return `<h2 class="font-semibold">3시간 간격 예보</h2>
+  <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">${items}</ul>`;
 }
 
 // 각 components별 수치값에 맞는 index(1~5)를 반환하는 함수

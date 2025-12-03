@@ -7,6 +7,7 @@ import {
 } from "../api.js";
 import { loadRecents, saveRecent, setLastQuery } from "../state.js";
 import {
+  render3HourSlots,
   render5DayCard,
   renderAqi,
   renderCurrent,
@@ -14,13 +15,17 @@ import {
   renderRecentList,
   setLoading,
 } from "../ui/render.js";
-import { computeDailyFromForecast } from "../utils.js";
+import {
+  computeDailyFromForecast,
+  computeSlotsFromForecast,
+} from "../utils.js";
 
 // 검색 도시명 기반 렌더링
 export async function searchAndRender(query) {
   const current = document.querySelector("#current-card");
   const detail = document.querySelector("#detail-card");
   const daysCard = document.querySelector("#days-card");
+  const hourlyCard = document.querySelector("#hourly-card");
   const aqiContainer = document.querySelector("#city-aqi-container");
   if (!current || !daysCard || !daysCard || !aqiContainer) return;
 
@@ -28,6 +33,7 @@ export async function searchAndRender(query) {
     setLoading(current, true);
     setLoading(detail, true);
     setLoading(daysCard, true);
+    setLoading(hourlyCard, true);
     setLoading(aqiContainer, true);
 
     // 검색한 데이터에 해당하는 위치, 도시명 fetch
@@ -62,8 +68,18 @@ export async function searchAndRender(query) {
     // 데이터 가공
     const days = computeDailyFromForecast(forecast);
 
-    // 5일 예보 렌더링
+    // 5일 예보 렌더링 (일간 요약)
     render5DayCard(daysCard, days);
+
+    // 3시간 간격 슬롯을 도시 타임존 기준으로 계산해 hourly-card에 렌더
+    try {
+      const tz = forecast.city?.timezone ?? 0;
+      const slots = computeSlotsFromForecast(forecast, 5, tz);
+      if (hourlyCard) render3HourSlots(hourlyCard, slots, tz);
+    } catch (err) {
+      if (hourlyCard)
+        hourlyCard.innerHTML = `<div class="text-sm text-neutral-500">3시간 간격 예보를 불러올 수 없습니다.</div>`;
+    }
 
     // 대기질 지수 렌더링
     const aqi = await fetchAqi(lat, lon);
@@ -78,6 +94,7 @@ export async function searchAndRender(query) {
     current.innerHTML = err;
     detail.innerHTML = err;
     daysCard.innerHTML = err;
+    hourlyCard.innerHTML = err;
     aqiContainer.innerHTML = err;
   }
 }

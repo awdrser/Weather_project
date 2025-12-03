@@ -1,4 +1,5 @@
 import {
+  template3HourSlots,
   template5Day,
   templateAqi,
   templateCurrent,
@@ -22,6 +23,11 @@ export function renderDetail(el, weather) {
 
 export function render5DayCard(el, days) {
   el.innerHTML = template5Day(days);
+}
+
+export function render3HourSlots(el, slots, tzOffset = 0) {
+  if (!el) return;
+  el.innerHTML = template3HourSlots(slots, tzOffset);
 }
 
 export function renderRecentList(ul, recents) {

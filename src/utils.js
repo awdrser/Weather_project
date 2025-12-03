@@ -47,13 +47,36 @@ export function normalizePlaceEn(nameRaw) {
 }
 
 export function formatSunTime(utcSeconds, cityOffsetSec) {
-  const cityMs = (utcSeconds + cityOffsetSec) * 1000;
-  return new Date(cityMs).toLocaleTimeString("ko-KR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: "UTC",
-  });
+  // UTC 타임스탐프를 밀리초로 변환하여 Date 객체 생성 (이건 UTC 시간)
+  const d = new Date(utcSeconds * 1000);
+
+  // UTC 시간을 읽기
+  let hours = d.getUTCHours();
+  let minutes = d.getUTCMinutes();
+
+  // 도시 오프셋(초 단위)을 시간과 분으로 변환하여 더하기
+  const offsetHours = Math.floor(cityOffsetSec / 3600);
+  const offsetMinutes = Math.floor((cityOffsetSec % 3600) / 60);
+
+  hours += offsetHours;
+  minutes += offsetMinutes;
+
+  // 분이 60을 넘으면 시간에 더하기
+  if (minutes >= 60) {
+    hours += Math.floor(minutes / 60);
+    minutes = minutes % 60;
+  }
+
+  // 시간이 24를 넘으면 처리
+  while (hours >= 24) hours -= 24;
+  while (hours < 0) hours += 24;
+
+  const ampm = hours < 12 ? "오전" : "오후";
+  const displayHour = hours % 12 || 12;
+
+  return `${ampm} ${String(displayHour).padStart(2, "0")}:${String(
+    minutes
+  ).padStart(2, "0")}`;
 }
 
 export function computeDailyFromForecast(data) {
@@ -93,4 +116,32 @@ export function computeDailyFromForecast(data) {
       desc: noonItem?.weather?.[0]?.description ?? "",
     };
   });
+}
+
+// 5일 예보 리스트에서 현재 시각 이후의 연속된 5개 항목을 추출
+export function computeSlotsFromForecast(data, count = 5, cityTzOffsetSec = 0) {
+  if (!data || !Array.isArray(data.list)) return [];
+
+  // 도시의 현재 시각을 UTC 기준으로 계산
+  // (브라우저의 현재 시각 + 도시 시간대 오프셋)
+  const nowUtcSec = Math.floor(Date.now() / 1000);
+  const nowInCitySec = nowUtcSec + cityTzOffsetSec;
+
+  // 도시 현재 시각 기준으로 첫 번째 미래 항목 찾기
+  let startIndex = data.list.findIndex((it) => it.dt > nowInCitySec);
+  if (startIndex === -1) startIndex = 0;
+
+  const sliced = data.list.slice(startIndex, startIndex + count);
+
+  const result = sliced.map((it) => ({
+    dt: it.dt,
+    temp: it.main?.temp,
+    icon: it.weather[0]?.icon ?? "01d",
+    desc: it.weather[0]?.description ?? "",
+    pop: typeof it.pop === "number" ? it.pop : 0,
+    rain: (it.rain && (it.rain["3h"] ?? it.rain["1h"])) || 0,
+    dt_txt: it.dt_txt,
+  }));
+
+  return result;
 }

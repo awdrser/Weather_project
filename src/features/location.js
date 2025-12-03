@@ -1,6 +1,7 @@
 import { fetch5Day, fetchAqi, fetchCurrent, reverseGeo } from "../api.js";
 import { loadRecents, saveRecent, state } from "../state.js";
 import {
+  render3HourSlots,
   render5DayCard,
   renderAqi,
   renderCurrent,
@@ -8,20 +9,25 @@ import {
   renderRecentList,
   setLoading,
 } from "../ui/render.js";
-import { computeDailyFromForecast } from "../utils.js";
+import {
+  computeDailyFromForecast,
+  computeSlotsFromForecast,
+} from "../utils.js";
 
 // 현재 위치 기반 렌더링
 export async function renderByCoord(lat, lon) {
   const current = document.querySelector("#current-card");
   const detail = document.querySelector("#detail-card");
   const daysCard = document.querySelector("#days-card");
+  const hourlyCard = document.querySelector("#hourly-card");
   const aqiContainer = document.querySelector("#city-aqi-container");
-  if (!current) return;
+  if (!current || !daysCard || !aqiContainer) return;
 
   try {
     setLoading(current, true);
     setLoading(detail, true);
     setLoading(daysCard, true);
+    setLoading(hourlyCard, true);
     setLoading(aqiContainer, true);
 
     const rev = await reverseGeo(lat, lon);
@@ -35,6 +41,16 @@ export async function renderByCoord(lat, lon) {
     const forecast = await fetch5Day(lat, lon);
     const days = computeDailyFromForecast(forecast);
     render5DayCard(daysCard, days);
+
+    // 3시간 간격 슬롯 렌더링 (현재 위치 기반)
+    try {
+      const tz = forecast.city?.timezone ?? 0;
+      const slots = computeSlotsFromForecast(forecast, 5, tz);
+      if (hourlyCard) render3HourSlots(hourlyCard, slots, tz);
+    } catch (err) {
+      if (hourlyCard)
+        hourlyCard.innerHTML = `<div class="text-sm text-neutral-500">3시간 간격 예보를 불러올 수 없습니다.</div>`;
+    }
 
     // 대기질 지수 렌더링
     const aqi = await fetchAqi(lat, lon);
