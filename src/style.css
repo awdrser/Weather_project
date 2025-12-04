@@ -1,10 +1,22 @@
 @import "tailwindcss";
 
+@layer base {
+  * {
+    @apply font-sans;
+  }
+  html {
+    font-family: "Noto Sans KR", sans-serif;
+  }
+}
+
 @layer components {
   .tag {
     @apply text-sm text-neutral-700;
   }
   .item {
     @apply mt-1 text-2xl;
+  }
+  .card {
+    @apply font-semibold text-[20px];
   }
 }

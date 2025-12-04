@@ -15,10 +15,7 @@ import {
   renderRecentList,
   setLoading,
 } from "../ui/render.js";
-import {
-  computeDailyFromForecast,
-  computeSlotsFromForecast,
-} from "../utils.js";
+import { computeSlotsFromForecast } from "../utils.js";
 
 // 현재 위치 기반 렌더링
 export async function renderByCoord(lat, lon) {
@@ -42,19 +39,19 @@ export async function renderByCoord(lat, lon) {
 
     const weather = await fetchCurrent(lat, lon);
     renderCurrent(current, weather, localPlace || "알 수 없는 위치");
-    renderDetail(detail, weather);
 
-    const forecast = await fetch5Day(lat, lon);
-    const days = computeDailyFromForecast(forecast);
+    const { list: days } = await fetch5Day(lat, lon);
     render5DayCard(daysCard, days);
+    const today = days[0];
+    renderDetail(detail, { weather, today });
 
     const hourly = await fetchHourly(lat, lon);
 
+    console.log(hourly);
     // 1시간 간격 슬롯 렌더링 (현재 위치 기반)
     try {
-      const tz = forecast.city?.timezone ?? 0;
+      const tz = weather.timezone ?? 0;
       const slots = computeSlotsFromForecast(hourly, 5, tz);
-      console.log(slots);
       if (hourlyCard) renderHourSlots(hourlyCard, slots, tz);
     } catch (err) {
       if (hourlyCard)

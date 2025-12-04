@@ -16,10 +16,7 @@ import {
   renderRecentList,
   setLoading,
 } from "../ui/render.js";
-import {
-  computeDailyFromForecast,
-  computeSlotsFromForecast,
-} from "../utils.js";
+import { computeSlotsFromForecast } from "../utils.js";
 
 // 검색 도시명 기반 렌더링
 export async function searchAndRender(query) {
@@ -60,27 +57,23 @@ export async function searchAndRender(query) {
     // 현재 날씨 렌더링
     renderCurrent(current, weather, localPlace || query);
 
-    // 오늘 예보 (디테일) 렌더링
-    renderDetail(detail, weather);
-
     // 위치로 5일 예보 데이터 fetch
-    const forecast = await fetch5Day(lat, lon);
-
-    // 데이터 가공
-    const days = computeDailyFromForecast(forecast);
+    const { list: days } = await fetch5Day(lat, lon);
 
     const hourly = await fetchHourly(lat, lon);
     // 5일 예보 렌더링 (일간 요약)
     render5DayCard(daysCard, days);
-
-    // 3시간 간격 슬롯을 도시 타임존 기준으로 계산해 hourly-card에 렌더
+    const today = days[0];
+    // 오늘 예보 (디테일) 렌더링
+    renderDetail(detail, { weather, today });
+    // 1시간 간격 슬롯을 도시 타임존 기준으로 계산해 hourly-card에 렌더
     try {
-      const tz = forecast.city?.timezone ?? 0;
+      const tz = weather.timezone ?? 0;
       const slots = computeSlotsFromForecast(hourly, 5, tz);
       if (hourlyCard) renderHourSlots(hourlyCard, slots, tz);
     } catch (err) {
       if (hourlyCard)
-        hourlyCard.innerHTML = `<div class="text-sm text-neutral-500">3시간 간격 예보를 불러올 수 없습니다.</div>`;
+        hourlyCard.innerHTML = `<div class="text-sm text-neutral-500">1시간 간격 예보를 불러올 수 없습니다.</div>`;
     }
 
     // 대기질 지수 렌더링

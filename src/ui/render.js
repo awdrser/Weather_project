@@ -17,8 +17,8 @@ export function renderCurrent(el, weather, localPlace) {
   el.innerHTML = templateCurrent(weather, localPlace || "알 수 없는 위치");
 }
 
-export function renderDetail(el, weather) {
-  el.innerHTML = templateDetail(weather);
+export function renderDetail(el, { weather, today }) {
+  el.innerHTML = templateDetail({ weather, today });
 }
 
 export function render5DayCard(el, days) {

@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Weather USW</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body class="app-container bg-neutral-100 text-neutral-900">
@@ -87,33 +93,34 @@
         </header>
 
         <section
-          class="mx-auto max-w-7xl px-4 py-4 grid grid-cols-1 lg:grid-cols-3 lg:grid-rows-3 gap-x-6 gap-y-3 lg:gap-y-3 lg:grid-"
+          class="mx-auto max-w-7xl px-4 py-4 grid grid-cols-1 lg:grid-cols-3 gap-x-6"
         >
-          <!-- Current Weather Card (현재 날씨) -->
-          <div id="current-card" class="lg:col-span-2 lg:row-span-1 h-44"></div>
-
-          <!-- Detail -->
-          <div
-            id="detail-card"
-            class="rounded-xl border border-neutral-200 bg-white p-4 lg:row-span-1 max-h-72"
-          ></div>
-          <!-- Hourly -->
-          <div
-            id="hourly-card"
-            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 overflow-x-auto lg:max-h-64"
-          ></div>
+          <div class="lg:col-span-2">
+            <!-- Current Weather Card (현재 날씨) -->
+            <div id="current-card" class="h-44 mb-5"></div>
+            <!-- Detail -->
+            <div
+              id="detail-card"
+              class="rounded-xl border border-neutral-200 bg-white p-6 lg:row-span-1 mb-5"
+            ></div>
+            <!-- Hourly -->
+            <div
+              id="hourly-card"
+              class="rounded-xl border border-neutral-200 bg-white px-6 py-5 overflow-x-auto lg:max-h-64 mb-5"
+            ></div>
+            <!-- 5 Days -->
+            <div
+              id="days-card"
+              class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 flex flex-col gap-3 mb-5"
+            ></div>
+          </div>
 
           <!-- AQI (대기질 지수)-->
           <div
-            class="rounded-xl border border-neutral-200 bg-white p-5 lg:row-span-2 lg:max-h-[300px]"
+            class="rounded-xl border border-neutral-200 bg-white p-5 lg:row-span-1 lg:max-h-[300px]"
           >
             <div id="city-aqi-container" class="-mt-1 w-full h-full"></div>
           </div>
-          <!-- 5 Days -->
-          <div
-            id="days-card"
-            class="lg:col-span-2 lg:row-span-1 rounded-xl border border-neutral-200 bg-white px-6 py-5 lg:max-h-60 flex flex-col gap-3"
-          ></div>
         </section>
       </main>
     </div>

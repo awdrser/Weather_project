@@ -6,6 +6,12 @@ export function normalizeIcon(icon) {
   return m ? m[0] : "01d";
 }
 
+export function flipIconVariant(icon) {
+  if (typeof icon !== "string") return icon;
+  // d를 n으로, n을 d로 바꾸기
+  return icon.replace(/d$/, "TEMP").replace(/n$/, "d").replace(/TEMP$/, "n");
+}
+
 export function normalizePlaceEn(nameRaw) {
   if (!nameRaw || typeof nameRaw !== "string") return "";
   let s = nameRaw.trim();

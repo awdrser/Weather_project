@@ -1,5 +1,5 @@
 import { state } from "../state.js";
-import { formatSunTime, normalizeIcon } from "../utils.js";
+import { flipIconVariant, formatSunTime, normalizeIcon } from "../utils.js";
 
 export function templateCurrent(weather, localPlace) {
   const temp = Math.round(weather.main.temp);
@@ -21,7 +21,7 @@ export function templateCurrent(weather, localPlace) {
         </div>
         <div class="mt-3 text-white/90">${desc}</div>
       </div>
-      <div class="text-white/80 text-sm">${new Date().toLocaleTimeString([], {
+      <div class="text-white/80 text-sm ">${new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       })}</div>
@@ -29,7 +29,10 @@ export function templateCurrent(weather, localPlace) {
   </div>`;
 }
 
-export function templateDetail(weather) {
+export function templateDetail({ weather, today }) {
+  const temp = Math.round(weather.main.temp);
+  const tempMax = Math.round(today.temp.max);
+  const tempMin = Math.round(today.temp.min);
   const feels = Math.round(weather.main.feels_like);
   const humidity = weather.main.humidity;
   const pressure = weather.main.pressure;
@@ -42,21 +45,20 @@ export function templateDetail(weather) {
   const sunSet = weather.sys.sunset;
   const tz = weather.timezone;
   return `
-<div class="flex items-center justify-between">
-  <h2 class="font-semibold">오늘 예보</h2>
-</div>
-<ul class="mt-4 grid grid-cols-2 gap-4">
-  <li><div class="tag">체감 온도</div><div class="item">${feels}°</div></li>
+  <h2 class="card">오늘 예보</h2>
+  <ul class="mt-4 grid grid-cols-2 gap-4">
+  <li class="col-span-2 h-16 w-52"><div class="tag">체감 온도</div><div class="text-4xl font-bold">${feels}°</div></li>
+  <li><div class="tag">최고/최저</div><div class="item">${tempMax}° / ${tempMin}°</div></li>
   <li><div class="tag">바람</div><div class="item">${wind} ${windLabel}</div></li>
   <li><div class="tag">습도</div><div class="item">${humidity}%</div></li>
   <li><div class="tag">기압</div><div class="item">${pressure} hPa</div></li>
-  <li class="col-span-1 flex items-center gap-3">
+  <li class="flex items-center gap-3">
     <div>
       <img alt="일출" src="https://cdn.jsdelivr.net/npm/lucide-static@0.453.0/icons/sunrise.svg" class="h-5 w-5"/>
       <div class="mt-0.5 text-2xl ">${formatSunTime(sunRise, tz)}</div>
     </div>
   </li>
-  <li class="col-span-1 flex items-center gap-3">
+  <li class=" flex items-center gap-3">
     <div>
       <img alt="일몰" src="https://cdn.jsdelivr.net/npm/lucide-static@0.453.0/icons/sunset.svg" class="h-5 w-5"/>
       <div class="mt-0.5 text-2xl ">${formatSunTime(sunSet, tz)}</div>
@@ -68,26 +70,28 @@ export function templateDetail(weather) {
 export function template5Day(days) {
   const items = days
     .map((d) => {
-      const dayLabel = new Date(d.date).toLocaleDateString("ko-KR", {
+      const dayLabel = new Date(d.dt * 1000).toLocaleDateString("ko-KR", {
         weekday: "short",
         month: "numeric",
         day: "numeric",
       });
+      const pop = Math.round((d.pop || 0) * 100);
       const iconUrl = `https://openweathermap.org/img/wn/${normalizeIcon(
-        d.icon
+        d.weather[0].icon
       )}@2x.png`;
       return `
   <li class="rounded-lg border border-neutral-200 p-4 text-center">
     <div class="text-sm text-neutral-500">${dayLabel}</div>
     <img alt="${d.desc}" class="mx-auto my-2 h-12 w-12" src="${iconUrl}" />
     <div class="mt-1 font-bold">
-      <span class="text-neutral-900">${d.max}°</span>
-      <span class="text-neutral-400 ml-1">${d.min}°</span>
+      <span class="text-neutral-900">${Math.round(d.temp.max)}°</span>
+      <span class="text-neutral-400 ml-1">${Math.round(d.temp.min)}°</span>
     </div>
+    <div class="flex gap-2 justify-center items-center text-sm text-neutral-500"><img alt="비" src="/droplet.svg" class="h-4 w-4"/> ${pop}% </div>
   </li>`;
     })
     .join("");
-  return `<h2 class="font-semibold">5일 예보</h2>
+  return `<h2 class="card">5일 예보</h2>
 <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 ">${items}</ul>`;
 }
 
@@ -108,7 +112,7 @@ export function templateRecentList(recents) {
 
 export function templateHourSlots(slots, tzOffset = 0) {
   if (!Array.isArray(slots) || slots.length === 0)
-    return `<h2 class="font-semibold">시간별 예고 예보</h2><div class="mt-4 text-neutral-400">데이터가 없습니다.</div>`;
+    return `<h2 class="card">시간별 예보</h2><div class="mt-4 text-neutral-400">데이터가 없습니다.</div>`;
 
   const items = slots
     .map((s) => {
@@ -117,7 +121,9 @@ export function templateHourSlots(slots, tzOffset = 0) {
         typeof s.dt_txt === "string" && s.dt_txt.length >= 16
           ? s.dt_txt.slice(11, 16)
           : formatSunTime(s.dt, tzOffset);
-      const icon = normalizeIcon(s.icon);
+      let icon = normalizeIcon(s.icon);
+      // d를 n으로, n을 d로 바꾸기
+      icon = flipIconVariant(icon);
       const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
       const temp = Math.round(s.temp);
       const pop = Math.round((s.pop || 0) * 100);
@@ -132,7 +138,7 @@ export function templateHourSlots(slots, tzOffset = 0) {
     })
     .join("");
 
-  return `<h2 class="font-semibold">시간별 예보</h2>
+  return `<h2 class="card">시간별 예보</h2>
   <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">${items}</ul>`;
 }
 
@@ -260,7 +266,7 @@ export function templateAqi(aqi) {
         .join("")}
     </ul>`;
 
-  const items = `<h2 class="mb-3 text-start font-semibold">대기질 지수</h2>
+  const items = `<h2 class="card">대기질 지수</h2>
       <p class="text-center text-2xl font-semibold  w-full ${colorClass}">${aqiStr}</p>
       ${componentsHTML}
     `;

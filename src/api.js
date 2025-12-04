@@ -55,12 +55,13 @@ export async function fetchCurrent(lat, lon) {
 }
 
 export async function fetch5Day(lat, lon) {
-  const url = new URL("https://api.openweathermap.org/data/2.5/forecast");
+  const url = new URL("https://api.openweathermap.org/data/2.5/forecast/daily");
   url.searchParams.set("lat", lat);
   url.searchParams.set("lon", lon);
   url.searchParams.set("appid", API_KEY);
   url.searchParams.set("units", state.unit);
   url.searchParams.set("lang", state.lang);
+  url.searchParams.set("cnt", 5);
   const res = await fetch(url);
   if (!res.ok) throw new Error("5일 예보 조회 실패");
   return res.json();
